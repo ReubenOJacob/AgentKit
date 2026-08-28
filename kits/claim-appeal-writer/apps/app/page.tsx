@@ -10,6 +10,13 @@ import type { AppealResult, DenialFacts } from "@/lib/types";
 
 type Step = 1 | 2 | 3;
 
+/**
+ * The three-step wizard.
+ *
+ * Flows 1 and 2 run in parallel on submit (indexing the policy and extracting
+ * the denial facts are independent), then the user confirms the facts before
+ * flow 3 drafts the appeal.
+ */
 export default function Page() {
   const [step, setStep] = useState<Step>(1);
   const [busy, setBusy] = useState(false);

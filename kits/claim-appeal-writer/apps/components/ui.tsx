@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+/** Surface container used for every panel in the wizard. */
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div className={`rounded-xl border p-5 ${className}`} style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
@@ -10,6 +11,7 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   );
 }
 
+/** Primary/ghost button. */
 export function Button({
   children,
   onClick,
@@ -35,6 +37,7 @@ export function Button({
   );
 }
 
+/** Small status pill, tone-coded for confidence and deadline urgency. */
 export function Badge({ tone, children }: { tone: "ok" | "warn" | "danger" | "neutral"; children: ReactNode }) {
   const map = {
     ok: { bg: "var(--ok-soft)", fg: "var(--ok)" },
@@ -49,10 +52,12 @@ export function Badge({ tone, children }: { tone: "ok" | "warn" | "danger" | "ne
   );
 }
 
+/** Uppercase field label. */
 export function Label({ children }: { children: ReactNode }) {
   return <label className="mb-1 block text-xs font-medium uppercase tracking-wide" style={{ color: "var(--muted)" }}>{children}</label>;
 }
 
+/** Three-step progress indicator for the upload → confirm → appeal flow. */
 export function Stepper({ step }: { step: 1 | 2 | 3 }) {
   const steps = ["Upload documents", "Confirm the facts", "Your appeal"];
   return (

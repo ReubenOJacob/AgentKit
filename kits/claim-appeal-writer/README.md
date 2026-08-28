@@ -88,6 +88,7 @@ claim-appeal-writer/
 
 - **Text in, not files in.** Flows accept extracted text rather than file URLs so the kit runs locally with zero extra services. The Next.js app extracts PDF text with `pdf-parse` before calling the flow. Swap in Lamatic's *Extract from File* node if your app already hosts uploads.
 - **US health insurance only.** The argument patterns (medical necessity, prior auth, network adequacy, experimental exclusions, ERISA/ACA appeal rights) are health-specific. Other lines are a prompt-and-taxonomy change, not an architecture change.
+- **No authentication (v1).** The app scopes retrieval by `policyId` so one policy's clauses never leak into another policy's appeal, but that is correctness, not authorization. Before deploying to real users, bind `policyId` to an authenticated owner server-side — see "Security model and production considerations" in [`agent.md`](./agent.md).
 - **A draft, not advice.** Every output carries a disclaimer. Deadlines are surfaced with their source (`letter`, `regulation`, or `unknown`) and never computed from thin air.
 
 ## Roadmap

@@ -3,7 +3,12 @@ import config from "../../lamatic.config";
 
 type StepId = "index-policy" | "analyze-denial" | "draft-appeal";
 
-/** Resolve a deployed flow ID from the env key declared in lamatic.config.ts. */
+/**
+ * Resolve a deployed flow ID from the env key declared in lamatic.config.ts.
+ *
+ * @param stepId - A step id from the kit config.
+ * @throws If the step has no envKey, or the env var is unset.
+ */
 export function flowIdFor(stepId: StepId): string {
   const step = config.steps.find((s) => s.id === stepId);
   if (!step?.envKey) {
@@ -36,7 +41,14 @@ export function lamaticClient(): Lamatic {
   return client;
 }
 
-/** Execute a flow and return its `result` object (the API Response node's output mapping). */
+/**
+ * Execute a deployed Lamatic flow and return the object its API Response node
+ * mapped, unwrapping the SDK's `{ status, result }` envelope.
+ *
+ * @param stepId - Which kit step to run.
+ * @param payload - Trigger payload; must match the flow's input schema.
+ * @throws If the flow reports a non-success status or returns no result.
+ */
 export async function runFlow<T = unknown>(stepId: StepId, payload: Record<string, unknown>): Promise<T> {
   const res: any = await lamaticClient().executeFlow(flowIdFor(stepId), payload);
   if (res?.status && String(res.status).toLowerCase() !== "success") {

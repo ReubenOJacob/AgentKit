@@ -76,6 +76,13 @@ function DropZone({
   );
 }
 
+/**
+ * Step 1 of the wizard: collect the policy and denial documents.
+ *
+ * Files are converted to text server-side before any flow is called, so the
+ * kit needs no file hosting. Sample documents can be loaded with one click so
+ * reviewers can try the kit without supplying real medical paperwork.
+ */
 export function UploadStep({ onSubmit, busy }: { onSubmit: (p: UploadPayload) => void; busy: boolean }) {
   const [policyText, setPolicyText] = useState("");
   const [policyTitle, setPolicyTitle] = useState("");

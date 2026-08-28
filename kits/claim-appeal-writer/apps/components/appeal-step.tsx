@@ -6,6 +6,14 @@ import { ArrowLeft, CalendarClock, Check, Copy, Download, ExternalLink, ListChec
 import { Badge, Button, Card } from "./ui";
 import type { AppealResult } from "@/lib/types";
 
+/**
+ * Step 3 of the wizard: the finished appeal.
+ *
+ * Shows the letter alongside the exact policy excerpts it quoted, so every
+ * citation can be checked against the source. The deadline banner is labelled
+ * with where the date came from (letter, regulation, or unknown) rather than
+ * presenting a computed date as fact.
+ */
 export function AppealStep({ result, onBack, onRestart }: { result: AppealResult; onBack: () => void; onRestart: () => void }) {
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<"citations" | "sources">("citations");

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "Turn an insurance denial letter and your policy into a cited, ready-to-send appeal."
 };
 
+/** App shell: header, content column, and the standing not-legal-advice notice. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">

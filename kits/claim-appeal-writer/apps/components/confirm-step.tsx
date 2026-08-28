@@ -6,6 +6,7 @@ import { Badge, Button, Card, Label } from "./ui";
 import { CATEGORY_LABEL } from "@/lib/constants";
 import type { DenialFacts } from "@/lib/types";
 
+/** A labelled text input bound to one denial-fact field. */
 function Field({ label, value, onChange }: { label: string; value: string | null; onChange: (v: string) => void }) {
   return (
     <div>
@@ -16,6 +17,14 @@ function Field({ label, value, onChange }: { label: string; value: string | null
   );
 }
 
+/**
+ * Step 2 of the wizard: the human-in-the-loop checkpoint.
+ *
+ * The extracted denial facts are shown as an editable card before anything is
+ * drafted, so the policyholder corrects the record rather than discovering an
+ * error in the finished letter. Anything the agent flagged in `missingInfo` is
+ * surfaced as a "please verify" warning.
+ */
 export function ConfirmStep({
   facts: initial,
   chunks,

@@ -3,13 +3,27 @@
 import { runFlow } from "@/lib/lamatic-client";
 import type { ActionResult, AppealResult, DenialFacts } from "@/lib/types";
 
+/**
+ * Normalise any thrown value into the ActionResult error shape and log it
+ * server-side. Errors are surfaced to the client as plain messages so that
+ * stack traces and credentials never leave the server.
+ */
 function fail(e: unknown): { ok: false; error: string } {
   const msg = e instanceof Error ? e.message : "Unknown error";
   console.error("[claim-appeal-writer]", msg);
   return { ok: false, error: msg };
 }
 
-/** Extract plain text from an uploaded PDF (or pass through .txt/.md). */
+/**
+ * Extract plain text from an uploaded document.
+ *
+ * PDFs are parsed with `pdf-parse`; .txt/.md files are passed through as UTF-8.
+ * Scanned PDFs with no text layer return an error rather than empty text, so the
+ * caller can prompt the user to paste the text instead.
+ *
+ * @param formData - Must contain a `file` entry.
+ * @returns The extracted text, or an error describing why extraction failed.
+ */
 export async function extractText(formData: FormData): Promise<ActionResult<string>> {
   try {
     const file = formData.get("file");
@@ -29,7 +43,19 @@ export async function extractText(formData: FormData): Promise<ActionResult<stri
   }
 }
 
-/** Flow 1 — chunk + embed + index the policy text under policyId. */
+/**
+ * Flow 1 — chunk, embed and index the policy document.
+ *
+ * The `policyId` scopes retrieval in {@link draftAppeal} so an appeal only ever
+ * cites clauses from the policy it belongs to. NOTE: this scoping is not an
+ * authorization boundary — see "Security model" in agent.md before deploying
+ * this to real users.
+ *
+ * @param policyText - Full plain text of the policy document.
+ * @param policyId - Caller-generated identifier for this policy.
+ * @param policyTitle - Human-readable name used in citations.
+ * @returns The policy id and the number of chunks indexed.
+ */
 export async function indexPolicy(
   policyText: string,
   policyId: string,
@@ -48,7 +74,16 @@ export async function indexPolicy(
   }
 }
 
-/** Flow 2 — extract structured denial facts from the denial letter text. */
+/**
+ * Flow 2 — extract structured facts from a denial letter.
+ *
+ * The flow is schema-constrained, so the result is shape-checked before it
+ * reaches the UI. A string result is tolerated and parsed, since some model
+ * providers return stringified JSON.
+ *
+ * @param denialText - Plain text of the denial letter.
+ * @returns Structured denial facts for the user to confirm.
+ */
 export async function analyzeDenial(denialText: string): Promise<ActionResult<DenialFacts>> {
   try {
     const r = await runFlow<{ denialFacts: DenialFacts | string }>("analyze-denial", { denialText });
@@ -60,7 +95,19 @@ export async function analyzeDenial(denialText: string): Promise<ActionResult<De
   }
 }
 
-/** Flow 3 — retrieve clauses + regulations and draft the appeal. */
+/**
+ * Flow 3 — retrieve the governing clauses and draft the appeal.
+ *
+ * Runs after the user has confirmed (and optionally corrected) the facts from
+ * {@link analyzeDenial}. Retrieval is scoped to `policyId`; `state` drives the
+ * regulatory web search.
+ *
+ * @param denialFacts - Confirmed denial facts.
+ * @param policyId - Same identifier used in {@link indexPolicy}.
+ * @param state - US state, used to look up appeal rights.
+ * @param patientContext - Optional free-text notes from the policyholder.
+ * @returns The letter, deadline, checklist, next steps and supporting sources.
+ */
 export async function draftAppeal(
   denialFacts: DenialFacts,
   policyId: string,
