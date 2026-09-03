@@ -137,9 +137,12 @@ export function UploadStep({ onSubmit, busy }: { onSubmit: (p: UploadPayload) =>
             </div>
           </div>
           <div className="mt-4">
-            <Label>Anything else we should know? (optional)</Label>
+            <Label>Anything else we should know?</Label>
             <textarea value={patientContext} onChange={(e) => setPatientContext(e.target.value)} className="h-24 w-full rounded-lg border p-3 text-sm" style={{ borderColor: "var(--line)" }}
-              placeholder="e.g. My doctor ordered this after 8 weeks of physical therapy didn't help." />
+              placeholder="e.g. My doctor ordered this after 8 weeks of physical therapy didn't help, and I have numbness in my left leg." />
+            <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
+              Specifics matter. Dates, how long you tried other treatments, and symptoms are what let the agent match your facts against the thresholds written into your policy.
+            </p>
           </div>
         </Card>
         {error && <div className="rounded-lg p-3 text-sm" style={{ background: "var(--danger-soft)", color: "var(--danger)" }}>{error}</div>}

@@ -14,6 +14,23 @@ import type { AppealResult } from "@/lib/types";
  * with where the date came from (letter, regulation, or unknown) rather than
  * presenting a computed date as fact.
  */
+
+/**
+ * PDF text extraction preserves the source document's column width, so excerpts
+ * arrive with a hard line break every ~78 characters. Rejoin those breaks into
+ * flowing paragraphs while keeping genuine blank-line paragraph breaks, and drop
+ * the markdown bold markers that would otherwise render literally.
+ */
+function reflow(text: string): string {
+  return text
+    .replace(/\*\*/g, "")
+    .split(/\n{2,}/)
+    .map((para) => para.replace(/\s*\n\s*/g, " ").trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
+}
+
 export function AppealStep({ result, onBack, onRestart }: { result: AppealResult; onBack: () => void; onRestart: () => void }) {
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<"citations" | "sources">("citations");
@@ -106,17 +123,17 @@ export function AppealStep({ result, onBack, onRestart }: { result: AppealResult
             </div>
             {tab === "citations" ? (
               <div className="max-h-96 space-y-3 overflow-auto text-xs">
-                {result.policyExcerpts.length === 0 && <div style={{ color: "var(--muted)" }}>No policy excerpts were retrieved — check that the policy was indexed.</div>}
+                {result.policyExcerpts.length === 0 && <div style={{ color: "var(--muted)" }}>No policy excerpts were retrieved. Rather than invent policy language, the letter asks the insurer to identify the provision it relied upon.</div>}
                 {result.policyExcerpts.map((p, i) => (
                   <div key={i} className="rounded-lg border p-2" style={{ borderColor: "var(--line)" }}>
                     <div className="mb-1 font-semibold" style={{ color: "var(--accent)" }}>{p.label}{p.certainty != null && <span className="ml-2 font-normal" style={{ color: "var(--muted)" }}>relevance {Math.round(p.certainty * 100)}%</span>}</div>
-                    <div className="whitespace-pre-wrap">{p.content}</div>
+                    <div className="whitespace-pre-wrap leading-relaxed">{reflow(p.content)}</div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="max-h-96 space-y-3 overflow-auto text-xs">
-                {result.webSources.length === 0 && <div style={{ color: "var(--muted)" }}>No regulatory sources were retrieved.</div>}
+                {result.webSources.length === 0 && <div style={{ color: "var(--muted)" }}>No regulatory sources were retrieved for this run, so the letter cites your policy only and makes no claims about statutory deadlines.</div>}
                 {result.webSources.map((w, i) => (
                   <div key={i}>
                     <a href={w.url} target="_blank" rel="noreferrer" className="font-semibold underline-offset-2 hover:underline" style={{ color: "var(--accent)" }}>{w.title}</a>
