@@ -3,7 +3,7 @@ export default {
   description: "Turns an insurance denial letter and your policy document into a cited, ready-to-send appeal letter with an evidence checklist and deadline tracker.",
   version: "1.0.0",
   type: "kit" as const,
-  author: { name: "Reuben O Jacob", email: "voh.abhav@gmail.com" },
+  author: { name: "Reuben O Jacob", email: "reubenjacob16@gmail.com" },
   tags: ["agentic", "rag", "insurance", "consumer", "document-analysis", "legal"],
   steps: [
     {
